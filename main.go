@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	database "github.com/harisfi/final-project-bds-sanbercode-golang-batch-40/database"
+	"github.com/harisfi/final-project-bds-sanbercode-golang-batch-40/routes"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -47,4 +48,7 @@ func main() {
 
 	database.DbMigrate(DB)
 	defer DB.Close()
+
+	e := routes.New()
+	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
 }
