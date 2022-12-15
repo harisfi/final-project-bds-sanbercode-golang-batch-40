@@ -31,15 +31,20 @@ func GetAllPublisher(db *sql.DB) (results []models.Publisher, err error) {
 	return results, nil
 }
 
-func InsertPublisher(db *sql.DB, publisher models.Publisher) (err error) {
-	sql := `INSERT INTO publishers (name, created_at, updated_at) VALUES ($1, $2, $3)`
+func InsertPublisher(db *sql.DB, publisher models.Publisher) (data interface{}, err error) {
+	sql := `INSERT INTO publishers (name, created_at, updated_at) VALUES ($1, $2, $3) RETURNING *`
 
 	publisher.CreatedAt = time.Now()
 	publisher.UpdatedAt = time.Now()
 
-	errs := db.QueryRow(sql, publisher.Name, publisher.CreatedAt, publisher.UpdatedAt)
+	errs := db.QueryRow(sql, publisher.Name, publisher.CreatedAt, publisher.UpdatedAt).Scan(
+		&publisher.Id, &publisher.Name, &publisher.CreatedAt, &publisher.UpdatedAt)
 
-	return errs.Err()
+	if errs != nil {
+		return nil, errs
+	}
+
+	return publisher, nil
 }
 
 func UpdatePublisher(db *sql.DB, publisher models.Publisher) (err error) {

@@ -31,15 +31,22 @@ func GetAllUser(db *sql.DB) (results []models.User, err error) {
 	return results, nil
 }
 
-func InsertUser(db *sql.DB, user models.User) (err error) {
-	sql := `INSERT INTO users (username, password, name, created_at, updated_at) VALUES ($1, $2, $3, $4, $5)`
+func InsertUser(db *sql.DB, user models.User) (data interface{}, err error) {
+	sql := `INSERT INTO users (
+		username, password, name, created_at, updated_at
+		) VALUES ($1, $2, $3, $4, $5) RETURNING *`
 
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
 
-	errs := db.QueryRow(sql, user.Username, user.Password, user.Name, user.CreatedAt, user.UpdatedAt)
+	errs := db.QueryRow(sql, user.Username, user.Password, user.Name, user.CreatedAt, user.UpdatedAt).
+		Scan(&user.Id, &user.Username, &user.Password, &user.Name, &user.CreatedAt, &user.UpdatedAt)
 
-	return errs.Err()
+	if errs != nil {
+		return nil, errs
+	}
+
+	return user, nil
 }
 
 func UpdateUser(db *sql.DB, user models.User) (err error) {

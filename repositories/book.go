@@ -35,11 +35,11 @@ func GetAllBook(db *sql.DB) (results []models.Book, err error) {
 	return results, nil
 }
 
-func InsertBook(db *sql.DB, book models.Book) (err error) {
+func InsertBook(db *sql.DB, book models.Book) (data interface{}, err error) {
 	sql := `INSERT INTO books (
 		title, year_published, publisher_id, subject_id,
 		is_borrowed, borrowed_by, created_at, updated_at
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`
 
 	book.CreatedAt = time.Now()
 	book.UpdatedAt = time.Now()
@@ -48,9 +48,17 @@ func InsertBook(db *sql.DB, book models.Book) (err error) {
 		book.Title, book.YearPublished, book.PublisherId,
 		book.SubjectId, book.IsBorrowed, book.BorrowedBy,
 		book.CreatedAt, book.UpdatedAt,
+	).Scan(
+		&book.Id, &book.Title, &book.YearPublished,
+		&book.PublisherId, &book.SubjectId, &book.IsBorrowed,
+		&book.BorrowedBy, &book.CreatedAt, &book.UpdatedAt,
 	)
 
-	return errs.Err()
+	if errs != nil {
+		return nil, errs
+	}
+
+	return book, nil
 }
 
 func UpdateBook(db *sql.DB, book models.Book) (err error) {

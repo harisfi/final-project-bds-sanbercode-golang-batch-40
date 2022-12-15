@@ -31,15 +31,20 @@ func GetAllSubject(db *sql.DB) (results []models.Subject, err error) {
 	return results, nil
 }
 
-func InsertSubject(db *sql.DB, subject models.Subject) (err error) {
-	sql := `INSERT INTO subjects (name, created_at, updated_at) VALUES ($1, $2, $3)`
+func InsertSubject(db *sql.DB, subject models.Subject) (data interface{}, err error) {
+	sql := `INSERT INTO subjects (name, created_at, updated_at) VALUES ($1, $2, $3) RETURNING *`
 
 	subject.CreatedAt = time.Now()
 	subject.UpdatedAt = time.Now()
 
-	errs := db.QueryRow(sql, subject.Name, subject.CreatedAt, subject.UpdatedAt)
+	errs := db.QueryRow(sql, subject.Name, subject.CreatedAt, subject.UpdatedAt).Scan(
+		&subject.Id, &subject.Name, &subject.CreatedAt, &subject.UpdatedAt)
 
-	return errs.Err()
+	if errs != nil {
+		return nil, errs
+	}
+
+	return subject, nil
 }
 
 func UpdateSubject(db *sql.DB, subject models.Subject) (err error) {
