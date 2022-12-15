@@ -14,10 +14,7 @@ func GetAllBook(c echo.Context) error {
 	books, err := repositories.GetAllBook(database.DbConnection)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"message": http.StatusText(http.StatusInternalServerError),
-			"data":    nil,
-		})
+		return err
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -28,15 +25,17 @@ func GetAllBook(c echo.Context) error {
 
 func CreateBook(c echo.Context) error {
 	book := models.Book{}
-	c.Bind(&book)
+	if err := c.Bind(&book); err != nil {
+		return err
+	}
+	if err := c.Validate(book); err != nil {
+		return err
+	}
 
 	data, err := repositories.InsertBook(database.DbConnection, book)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"message": http.StatusText(http.StatusInternalServerError),
-			"data":    nil,
-		})
+		return err
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -47,17 +46,20 @@ func CreateBook(c echo.Context) error {
 
 func UpdateBookById(c echo.Context) error {
 	book := models.Book{}
-	c.Bind(&book)
+	if err := c.Bind(&book); err != nil {
+		return err
+	}
+	if err := c.Validate(book); err != nil {
+		return err
+	}
+
 	id, _ := strconv.Atoi(c.Param("id"))
 	book.Id = id
 
 	err := repositories.UpdateBook(database.DbConnection, book)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"message": http.StatusText(http.StatusInternalServerError),
-			"data":    nil,
-		})
+		return err
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -74,10 +76,7 @@ func DeleteBookById(c echo.Context) error {
 	err := repositories.DeleteBook(database.DbConnection, book)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"message": http.StatusText(http.StatusInternalServerError),
-			"data":    nil,
-		})
+		return err
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{

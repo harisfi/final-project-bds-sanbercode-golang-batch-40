@@ -14,10 +14,7 @@ func GetAllUser(c echo.Context) error {
 	users, err := repositories.GetAllUser(database.DbConnection)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"message": http.StatusText(http.StatusInternalServerError),
-			"data":    nil,
-		})
+		return err
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -28,15 +25,17 @@ func GetAllUser(c echo.Context) error {
 
 func CreateUser(c echo.Context) error {
 	user := models.User{}
-	c.Bind(&user)
+	if err := c.Bind(&user); err != nil {
+		return err
+	}
+	if err := c.Validate(user); err != nil {
+		return err
+	}
 
 	data, err := repositories.InsertUser(database.DbConnection, user)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"message": http.StatusText(http.StatusInternalServerError),
-			"data":    nil,
-		})
+		return err
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -47,17 +46,20 @@ func CreateUser(c echo.Context) error {
 
 func UpdateUserById(c echo.Context) error {
 	user := models.User{}
-	c.Bind(&user)
+	if err := c.Bind(&user); err != nil {
+		return err
+	}
+	if err := c.Validate(user); err != nil {
+		return err
+	}
+
 	id, _ := strconv.Atoi(c.Param("id"))
 	user.Id = id
 
 	err := repositories.UpdateUser(database.DbConnection, user)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"message": http.StatusText(http.StatusInternalServerError),
-			"data":    nil,
-		})
+		return err
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -74,10 +76,7 @@ func DeleteUserById(c echo.Context) error {
 	err := repositories.DeleteUser(database.DbConnection, user)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"message": http.StatusText(http.StatusInternalServerError),
-			"data":    nil,
-		})
+		return err
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{

@@ -14,10 +14,7 @@ func GetAllPublisher(c echo.Context) error {
 	publishers, err := repositories.GetAllPublisher(database.DbConnection)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"message": http.StatusText(http.StatusInternalServerError),
-			"data":    nil,
-		})
+		return err
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -28,15 +25,17 @@ func GetAllPublisher(c echo.Context) error {
 
 func CreatePublisher(c echo.Context) error {
 	publisher := models.Publisher{}
-	c.Bind(&publisher)
+	if err := c.Bind(&publisher); err != nil {
+		return err
+	}
+	if err := c.Validate(publisher); err != nil {
+		return err
+	}
 
 	data, err := repositories.InsertPublisher(database.DbConnection, publisher)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"message": http.StatusText(http.StatusInternalServerError),
-			"data":    nil,
-		})
+		return err
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -47,17 +46,20 @@ func CreatePublisher(c echo.Context) error {
 
 func UpdatePublisherById(c echo.Context) error {
 	publisher := models.Publisher{}
-	c.Bind(&publisher)
+	if err := c.Bind(&publisher); err != nil {
+		return err
+	}
+	if err := c.Validate(publisher); err != nil {
+		return err
+	}
+
 	id, _ := strconv.Atoi(c.Param("id"))
 	publisher.Id = id
 
 	err := repositories.UpdatePublisher(database.DbConnection, publisher)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"message": http.StatusText(http.StatusInternalServerError),
-			"data":    nil,
-		})
+		return err
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -74,10 +76,7 @@ func DeletePublisherById(c echo.Context) error {
 	err := repositories.DeletePublisher(database.DbConnection, publisher)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"message": http.StatusText(http.StatusInternalServerError),
-			"data":    nil,
-		})
+		return err
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{

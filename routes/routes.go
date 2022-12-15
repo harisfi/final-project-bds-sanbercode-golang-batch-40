@@ -1,7 +1,9 @@
 package routes
 
 import (
+	"github.com/go-playground/validator/v10"
 	"github.com/harisfi/final-project-bds-sanbercode-golang-batch-40/controllers"
+	m "github.com/harisfi/final-project-bds-sanbercode-golang-batch-40/middlewares"
 	"github.com/labstack/echo/v4"
 )
 
@@ -33,6 +35,9 @@ func New() *echo.Echo {
 	booksV1.POST("", controllers.CreateBook)
 	booksV1.PUT("/:id", controllers.UpdateBookById)
 	booksV1.DELETE("/:id", controllers.DeleteBookById)
+
+	e.Validator = &m.CustomValidator{Validator: validator.New()}
+	e.HTTPErrorHandler = m.ErrorHandler
 
 	return e
 }
