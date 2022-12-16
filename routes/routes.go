@@ -42,10 +42,14 @@ func New() *echo.Echo {
 	usersV1Auth.DELETE("/:id", controllers.DeleteUserById)
 
 	booksV1 := v1.Group("/books")
+	booksV1Auth := v1.Group("/books", jwtMiddleware)
+
 	booksV1.GET("", controllers.GetAllBook)
-	booksV1.POST("", controllers.CreateBook)
-	booksV1.PUT("/:id", controllers.UpdateBookById)
-	booksV1.DELETE("/:id", controllers.DeleteBookById)
+	booksV1Auth.POST("", controllers.CreateBook)
+	booksV1Auth.GET("/:id/borrow", controllers.BorrowBook)
+	booksV1Auth.GET("/:id/return", controllers.ReturnBook)
+	booksV1Auth.PUT("/:id", controllers.UpdateBookById)
+	booksV1Auth.DELETE("/:id", controllers.DeleteBookById)
 
 	e.Validator = &m.CustomValidator{Validator: validator.New()}
 	e.HTTPErrorHandler = m.ErrorHandler
