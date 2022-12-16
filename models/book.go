@@ -4,7 +4,7 @@ import "time"
 
 type Book struct {
 	Id            int       `json:"id"`
-	Title         string    `json:"title" form:"title" validate:"required,unique"`
+	Title         string    `json:"title" form:"title" validate:"required"`
 	Author        string    `json:"author" form:"author" validate:"required"`
 	YearPublished int       `json:"year_published" form:"year_published" validate:"numeric"`
 	PublisherId   int       `json:"publisher_id" form:"publisher_id" validate:"numeric"`

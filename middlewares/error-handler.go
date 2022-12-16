@@ -20,9 +20,9 @@ func ErrorHandler(err error, c echo.Context) {
 			case "required":
 				report.Message = fmt.Sprintf("%s is required",
 					err.Field())
-			case "unique":
-				report.Message = fmt.Sprintf("%s is already exists",
-					err.Field())
+			case "gte":
+				report.Message = fmt.Sprintf("%s value must be greater than %s",
+					err.Field(), err.Param())
 			case "numeric":
 				report.Message = fmt.Sprintf("%s is not a valid number",
 					err.Field())
