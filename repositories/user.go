@@ -2,9 +2,12 @@ package repositories
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 
+	"github.com/harisfi/final-project-bds-sanbercode-golang-batch-40/middlewares"
 	"github.com/harisfi/final-project-bds-sanbercode-golang-batch-40/models"
+	"github.com/harisfi/final-project-bds-sanbercode-golang-batch-40/utils"
 )
 
 func GetAllUser(db *sql.DB) (results []models.User, err error) {
@@ -20,7 +23,7 @@ func GetAllUser(db *sql.DB) (results []models.User, err error) {
 	for rows.Next() {
 		var user = models.User{}
 
-		err = rows.Scan(&user.Id, &user.Username, &user.Name, &user.CreatedAt, &user.UpdatedAt)
+		err = rows.Scan(&user.Id, &user.Username, &user.Password, &user.Name, &user.CreatedAt, &user.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -64,4 +67,27 @@ func DeleteUser(db *sql.DB, user models.User) (err error) {
 	errs := db.QueryRow(sql, user.Id)
 
 	return errs.Err()
+}
+
+func LoginUser(db *sql.DB, user models.User) (interface{}, error) {
+	dUser := models.User{}
+	sql := `SELECT id, password FROM users WHERE username = $1`
+
+	errs := db.QueryRow(sql, user.Username).Scan(&dUser.Id, &dUser.Password)
+
+	if errs != nil {
+		return nil, errs
+	}
+
+	if utils.CheckPasswordHash(user.Password, dUser.Password) {
+		token, e := middlewares.CreateToken(dUser.Id)
+		if e != nil {
+			return nil, e
+		}
+
+		return token, nil
+	} else {
+		return nil, errors.New("unauthorized")
+	}
+
 }
